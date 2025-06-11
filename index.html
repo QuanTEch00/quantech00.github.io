@@ -209,6 +209,9 @@
     // Update the audio playback function
     async function playAudio() {
         try {
+            // Pause and reset before playing to allow replay on each click
+            audio.pause();
+            audio.currentTime = 0;
             await audio.play();
         } catch (error) {
             console.error("Audio playback failed:", error);
