@@ -48,8 +48,8 @@
         }
 
         .donut {
-            width: 100px; /* Twice as big */
-            height: 100px; /* Twice as big */
+            width: 200px; /* Twice as big */
+            height: 200px; /* Twice as big */
             border-radius: 50%;
             margin: 20px; /* Increased margin for spacing */
             cursor: pointer;
@@ -120,31 +120,42 @@
     function fillScreenWithDonuts() {
         const containerWidth = donutContainer.clientWidth;
         const containerHeight = donutContainer.clientHeight;
-        const donutSize = 100; // Twice as big
+        const donutSize = 200; // Twice as big
         const minMargin = -20; // Minimum margin
         const maxMargin = 30; // Maximum margin
 
-        let x = 0, y = 100;
-        while (y < containerHeight) {
-            const donut = createDonut();
-            const randomMargin = Math.floor(Math.random() * (maxMargin - minMargin + 1)) + minMargin;
-            donut.style.position = 'absolute';
-            donut.style.left = `${x}px`;
-            donut.style.top = `${y}px`;
-            donut.style.margin = `${randomMargin}px`; // Add random margin
-            if (donutContainer.appendChild(donut)) {
-                targetDonuts++; // Increment only after successful append
+        let x = 0, y = 120;
+        while (y + donutSize <= containerHeight) {
+            // Calculate margin but clamp so donut stays inside right edge
+            let randomMargin = Math.floor(Math.random() * (maxMargin - minMargin + 1)) + minMargin;
+            if (x + donutSize + randomMargin > containerWidth) {
+                randomMargin = containerWidth - x - donutSize;
+                if (randomMargin < 0) randomMargin = 0;
             }
-            
-            x += donutSize + randomMargin; // Adjust x position based on random margin
-            if (x > containerWidth - donutSize) { // Ensure donut does not cross the screen boundary
+
+            // Only place donut if it fits horizontally
+            if (x + donutSize <= containerWidth) {
+                const donut = document.createElement('img');
+                donut.src = 'donut.png';
+                donut.alt = 'Donut';
+                donut.classList.add('donut');
+                donut.style.position = 'absolute';
+                donut.style.left = `${x}px`;
+                donut.style.top = `${y}px`;
+                donut.style.margin = `${randomMargin}px`;
+                donutContainer.appendChild(donut);
+                targetDonuts++;
+            }
+
+            x += donutSize + randomMargin;
+            // If next donut would overflow right, move to next row
+            if (x + donutSize > containerWidth) {
                 x = 0;
-                y += donutSize + randomMargin;
+                y += donutSize + minMargin;
             }
         }
-        targetDisplay.textContent = `Target: ${targetDonuts}`; // Updated to Target
-        
-        timerDisplay.textContent = `Time: ${targetDonuts / 2}`; // Initialize timerDisplay with targetDonuts/2
+        targetDisplay.textContent = `Target: ${targetDonuts}`;
+        timerDisplay.textContent = `Time: ${targetDonuts / 2}`;
     }
 
     function startTimer(duration) {
@@ -207,7 +218,7 @@
     fillScreenWithDonuts();
 
     // Initialize timer after filling the screen with donuts
-    InitializeTimer(targetDonuts / 2);
+    InitializeTimer(targetDonuts / 1.5);
 
     let timerStarted = false;
     document.querySelectorAll('.donut').forEach(button => {
