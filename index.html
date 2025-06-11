@@ -96,8 +96,8 @@
 
 <div class="donut-container" id="donutContainer"></div>
 
-<button id="playButton" style="display:none;">Play Audio</button>
-<audio id="myAudio" src="bite.mpeg"></audio>
+<!-- Update the audio element with necessary attributes -->
+<audio id="myAudio" src="bite.mpeg" playsinline webkit-playsinline preload="auto"></audio>
 
 <script>
     let score = 0;
@@ -107,7 +107,6 @@
     const targetDisplay = document.getElementById('total'); // Updated to targetDisplay
     const timerDisplay = document.getElementById('timer');
     const donutContainer = document.getElementById('donutContainer');
-    const playButton = document.getElementById('playButton');
     const audio = document.getElementById('myAudio');
 
     function createDonut() {
@@ -196,14 +195,24 @@
         }, 3000); // Remove the overlay after 3 seconds
     }
 
-    function playAudio() {
-        audio.play()
-            .then(() => {
-                console.log('Audio is playing');
-            })
-            .catch(error => {
-                console.error('Audio playback failed:', error);
-            });
+    // Update the audio playback function
+    async function playAudio() {
+        // Reset audio state before playing
+        audio.currentTime = 0;
+        
+        try {
+            // For iOS, we need to load the audio first
+            await audio.load();
+            await audio.play();
+        } catch (error) {
+            console.error('Audio playback failed:', error);
+            // Fallback for iOS - try playing without loading
+            try {
+                await audio.play();
+            } catch (secondError) {
+                console.error('Fallback audio playback failed:', secondError);
+            }
+        }
     }
 
     fillScreenWithDonuts();
@@ -213,9 +222,9 @@
 
     let timerStarted = false;
     document.querySelectorAll('.donut').forEach(button => {
-        button.addEventListener('click', () => {
+        button.addEventListener('click', async () => {
             if (!button.disabled) {
-                playButton.click(); // Programmatically click the play button
+                await playAudio(); // Use the new playAudio function directly instead of clicking playButton
 
                 score++;
                 scoreDisplay.textContent = `Score: ${score}`;
@@ -234,20 +243,6 @@
                 }
             }
         });
-    });
-
-    playButton.addEventListener('click', async function() {
-        if (audio.paused) {
-            try {
-                await audio.play();
-            } catch (error) {
-                console.error('Audio playback failed:', error);
-            }
-        } else {
-            audio.pause();
-            audio.currentTime = 0;
-            await audio.play();
-        }
     });
 
     // Reset audio when it ends
