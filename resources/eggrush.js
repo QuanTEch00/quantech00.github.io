@@ -7,13 +7,6 @@ const timerDisplay = document.getElementById('timer');
 const eggContainer = document.getElementById('eggContainer');
 const audio = document.getElementById('myAudio');
 
-function createegg() {
-    const egg = document.createElement('img');
-    egg.src = 'resources/egg-1.png';
-    egg.alt = 'egg';
-    egg.classList.add('egg');
-    return egg;
-}
 
 function fillScreenWitheggs() {
     const containerWidth = eggContainer.clientWidth;
@@ -33,7 +26,8 @@ function fillScreenWitheggs() {
 
         if (x + eggSizeWidth <= containerWidth) {
             const egg = document.createElement('img');
-            egg.src = 'resources/egg-1.png';
+            // Randomly choose between 'egg-1.png' and 'egg-2.png'
+            egg.src = Math.random() > 0.5 ? 'resources/egg-1.png' : 'resources/egg-2.png';
             egg.alt = 'egg';
             egg.classList.add('egg');
             egg.style.position = 'absolute';
