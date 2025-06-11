@@ -51,7 +51,6 @@ function fillScreenWitheggs() {
         }
     }
     targetDisplay.textContent = `Target: ${targeteggs}`;
-    timerDisplay.textContent = `Time: ${targeteggs}`;
 }
 
 function startTimer(duration) {
@@ -113,7 +112,8 @@ async function playAudio() {
 }
 
 fillScreenWitheggs();
-InitializeTimer(targeteggs);
+targetTime = targeteggs*.75
+InitializeTimer(targetTime);
 
 let timerStarted = false;
 document.querySelectorAll('.egg').forEach(button => {
@@ -134,7 +134,7 @@ document.querySelectorAll('.egg').forEach(button => {
             }, 450);
 
             if (!timerStarted) {
-                startTimer(targeteggs);
+                startTimer(targetTime);
                 timerStarted = true;
             }
         }
