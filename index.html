@@ -155,7 +155,7 @@
             }
         }
         targetDisplay.textContent = `Target: ${targetDonuts}`;
-        timerDisplay.textContent = `Time: ${targetDonuts / 2}`;
+        timerDisplay.textContent = `Time: ${targetDonuts}`;
     }
 
     function startTimer(duration) {
@@ -218,7 +218,7 @@
     fillScreenWithDonuts();
 
     // Initialize timer after filling the screen with donuts
-    InitializeTimer(targetDonuts / 1.5);
+    InitializeTimer(targetDonuts);
 
     let timerStarted = false;
     document.querySelectorAll('.donut').forEach(button => {
@@ -240,7 +240,7 @@
                 }, 450); // Adjust timeout to match the animation duration
 
                 if (!timerStarted) {
-                    startTimer(targetDonuts / 2); // Updated to targetDonuts
+                    startTimer(targetDonuts); // Updated to targetDonuts
                     timerStarted = true;
                 }
             }
