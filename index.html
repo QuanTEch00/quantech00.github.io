@@ -96,6 +96,9 @@
 
 <div class="donut-container" id="donutContainer"></div>
 
+<button id="playButton" style="display:none;">Play Audio</button>
+<audio id="myAudio" src="bite.mpeg"></audio>
+
 <script>
     let score = 0;
     let targetDonuts = 0; // Renamed total to targetDonuts
@@ -104,6 +107,8 @@
     const targetDisplay = document.getElementById('total'); // Updated to targetDisplay
     const timerDisplay = document.getElementById('timer');
     const donutContainer = document.getElementById('donutContainer');
+    const playButton = document.getElementById('playButton');
+    const audio = document.getElementById('myAudio');
 
     function createDonut() {
         const donut = document.createElement('img');
@@ -191,10 +196,14 @@
         }, 3000); // Remove the overlay after 3 seconds
     }
 
-    function playAudio(audio) {
-        audio.addEventListener('canplaythrough', () => {
-            audio.play();
-        });
+    function playAudio() {
+        audio.play()
+            .then(() => {
+                console.log('Audio is playing');
+            })
+            .catch(error => {
+                console.error('Audio playback failed:', error);
+            });
     }
 
     fillScreenWithDonuts();
@@ -206,8 +215,7 @@
     document.querySelectorAll('.donut').forEach(button => {
         button.addEventListener('click', () => {
             if (!button.disabled) {
-                const audio = new Audio('bite.mpeg'); // Create a new Audio object
-                playAudio(audio); // Play the audio file
+                playButton.click(); // Programmatically click the play button
 
                 score++;
                 scoreDisplay.textContent = `Score: ${score}`;
@@ -226,6 +234,25 @@
                 }
             }
         });
+    });
+
+    playButton.addEventListener('click', async function() {
+        if (audio.paused) {
+            try {
+                await audio.play();
+            } catch (error) {
+                console.error('Audio playback failed:', error);
+            }
+        } else {
+            audio.pause();
+            audio.currentTime = 0;
+            await audio.play();
+        }
+    });
+
+    // Reset audio when it ends
+    audio.addEventListener('ended', function() {
+        audio.currentTime = 0;
     });
 </script>
 
