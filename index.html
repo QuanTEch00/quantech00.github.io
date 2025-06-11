@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clickable Donuts</title>
+    <style>
+        body {
+            background-color: yellow;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden; /* Hide scrollbars */
+        }
+
+        #score, #total, #timer {
+            position: fixed;
+            top: 50px; /* Margin from the top */
+            font-size: 36px; /* Larger and bolder */
+            color: red; /* Red color */
+            font-weight: bold;
+        }
+
+        #score {
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #total {
+            right: 15%;
+            transform: translateX(50%);
+        }
+
+        #timer {
+            left: 20px; /* Position to the left side */
+        }
+
+        .donut-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: calc(100vh - 60px); /* Adjusted height to accommodate the score */
+            margin-top: 60px; /* Added margin at the top for the score */
+        }
+
+        .donut {
+            width: 100px; /* Twice as big */
+            height: 100px; /* Twice as big */
+            border-radius: 50%;
+            margin: 20px; /* Increased margin for spacing */
+            cursor: pointer;
+            animation: none; /* Remove initial animation */
+        }
+
+        @keyframes shake {
+            0%, 100% {
+                transform: translate(0, 0);
+            }
+            25% {
+                transform: translate(-5px, -5px);
+            }
+            50% {
+                transform: translate(5px, 5px);
+            }
+            75% {
+                transform: translate(-5px, -5px);
+            }
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: red;
+            font-size: 36px;
+            font-weight: bold;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+<div id="timer">Time: 0</div>
+<div id="score">Score: 0</div>
+<div id="total">Total: 0</div>
+
+<div class="donut-container" id="donutContainer"></div>
+
+<script>
+    let score = 0;
+    let targetDonuts = 0; // Renamed total to targetDonuts
+    let timerInterval;
+    const scoreDisplay = document.getElementById('score');
+    const targetDisplay = document.getElementById('total'); // Updated to targetDisplay
+    const timerDisplay = document.getElementById('timer');
+    const donutContainer = document.getElementById('donutContainer');
+
+    function createDonut() {
+        const donut = document.createElement('img');
+        donut.src = 'donut.png';
+        donut.alt = 'Donut';
+        donut.classList.add('donut');
+        return donut;
+    }
+
+    function fillScreenWithDonuts() {
+        const containerWidth = donutContainer.clientWidth;
+        const containerHeight = donutContainer.clientHeight;
+        const donutSize = 100; // Twice as big
+        const minMargin = -20; // Minimum margin
+        const maxMargin = 30; // Maximum margin
+
+        let x = 0, y = 100;
+        while (y < containerHeight) {
+            const donut = createDonut();
+            const randomMargin = Math.floor(Math.random() * (maxMargin - minMargin + 1)) + minMargin;
+            donut.style.position = 'absolute';
+            donut.style.left = `${x}px`;
+            donut.style.top = `${y}px`;
+            donut.style.margin = `${randomMargin}px`; // Add random margin
+            if (donutContainer.appendChild(donut)) {
+                targetDonuts++; // Increment only after successful append
+            }
+            
+            x += donutSize + randomMargin; // Adjust x position based on random margin
+            if (x > containerWidth - donutSize) { // Ensure donut does not cross the screen boundary
+                x = 0;
+                y += donutSize + randomMargin;
+            }
+        }
+        targetDisplay.textContent = `Target: ${targetDonuts}`; // Updated to Target
+        
+        timerDisplay.textContent = `Time: ${targetDonuts / 2}`; // Initialize timerDisplay with targetDonuts/2
+    }
+
+    function startTimer(duration) {
+        let timer = duration, minutes, seconds;
+        timer--;
+        timerInterval = setInterval(() => {
+            seconds = parseInt(timer, 10);
+
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+
+            timerDisplay.textContent = `Time: ${seconds}`;
+
+            if (--timer < 0) {
+                clearInterval(timerInterval);
+                disableAllDonuts();
+                checkScoreAndTarget(); // Check score and target after timer ends
+            }
+        }, 1000);
+    }
+    
+    function InitializeTimer(duration) {
+        let timer = duration, minutes, seconds;
+            seconds = parseInt(timer, 10);
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+            timerDisplay.textContent = `Time: ${seconds}`;
+    }
+
+    function disableAllDonuts() {
+        document.querySelectorAll('.donut').forEach(button => {
+            button.disabled = true;
+        });
+    }
+
+    function checkScoreAndTarget() {
+        const overlay = document.createElement('div');
+        overlay.className = 'overlay';
+        
+        if (score === targetDonuts) {
+            overlay.textContent = "Congratulations!";
+        } else {
+            overlay.textContent = `Game Over!`;
+        }
+
+        document.body.appendChild(overlay);
+
+        setTimeout(() => {
+            document.body.removeChild(overlay);
+        }, 3000); // Remove the overlay after 3 seconds
+    }
+
+    fillScreenWithDonuts();
+
+    // Initialize timer after filling the screen with donuts
+    InitializeTimer(targetDonuts / 2);
+
+    let timerStarted = false;
+    document.querySelectorAll('.donut').forEach(button => {
+        button.addEventListener('click', () => {
+            if (!button.disabled) {
+                const audio = new Audio('bite.mpeg'); // Create a new Audio object
+                audio.play(); // Play the audio file
+
+                score++;
+                scoreDisplay.textContent = `Score: ${score}`;
+                button.style.animation = 'shake 0.22s linear infinite';
+                setTimeout(() => {
+                    button.style.animation = 'none';
+                    const randomAngle = Math.floor(Math.random() * 360); // Generate a random angle
+                    button.style.transform = `rotate(${randomAngle}deg)`; // Rotate the image by the random angle
+                    button.src = 'eaten-donut.png'; // Change the image source
+                    button.disabled = true; // Disable the button after it is clicked
+                }, 450); // Adjust timeout to match the animation duration
+
+                if (!timerStarted) {
+                    startTimer(targetDonuts / 2); // Updated to targetDonuts
+                    timerStarted = true;
+                }
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
