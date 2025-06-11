@@ -17,7 +17,7 @@
 
         #score, #total, #timer {
             position: fixed;
-            top: 50px; /* Margin from the top */
+            top: 25px; /* Margin from the top */
             font-size: 36px; /* Larger and bolder */
             color: red; /* Red color */
             font-weight: bold;
@@ -197,21 +197,10 @@
 
     // Update the audio playback function
     async function playAudio() {
-        // Reset audio state before playing
-        audio.currentTime = 0;
-        
         try {
-            // For iOS, we need to load the audio first
-            await audio.load();
             await audio.play();
         } catch (error) {
-            console.error('Audio playback failed:', error);
-            // Fallback for iOS - try playing without loading
-            try {
-                await audio.play();
-            } catch (secondError) {
-                console.error('Fallback audio playback failed:', secondError);
-            }
+            console.error("Audio playback failed:", error);
         }
     }
 
@@ -224,6 +213,7 @@
     document.querySelectorAll('.donut').forEach(button => {
         button.addEventListener('click', async () => {
             if (!button.disabled) {
+                button.disabled = true; // Disable the button after it is clicked
                 await playAudio(); // Use the new playAudio function directly instead of clicking playButton
 
                 score++;
@@ -234,7 +224,8 @@
                     const randomAngle = Math.floor(Math.random() * 360); // Generate a random angle
                     button.style.transform = `rotate(${randomAngle}deg)`; // Rotate the image by the random angle
                     button.src = 'eaten-donut.png'; // Change the image source
-                    button.disabled = true; // Disable the button after it is clicked
+                    // button.style.opacity = '0.5'; // Set transparency to 50%
+                    
                 }, 450); // Adjust timeout to match the animation duration
 
                 if (!timerStarted) {
