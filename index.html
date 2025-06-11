@@ -191,6 +191,12 @@
         }, 3000); // Remove the overlay after 3 seconds
     }
 
+    function playAudio(audio) {
+        audio.addEventListener('canplaythrough', () => {
+            audio.play();
+        });
+    }
+
     fillScreenWithDonuts();
 
     // Initialize timer after filling the screen with donuts
@@ -201,7 +207,7 @@
         button.addEventListener('click', () => {
             if (!button.disabled) {
                 const audio = new Audio('bite.mpeg'); // Create a new Audio object
-                audio.play(); // Play the audio file
+                playAudio(audio); // Play the audio file
 
                 score++;
                 scoreDisplay.textContent = `Score: ${score}`;
